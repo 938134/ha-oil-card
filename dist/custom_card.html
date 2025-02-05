@@ -1,0 +1,48 @@
+<!-- custom_card.html -->
+<dom-module id="ha-oil-card">
+  <template>
+    <style>
+      /* 在这里插入您提供的CSS样式 */
+      :host {
+        --main-bg: #2C3E50;
+        --border-color: rgba(255,255,255,0.1);
+        --text-color: #ECF0F1;
+        --item-height: 70px;
+        --icon-size: 28px;
+        --base-padding: 0.6rem;
+        --max-container-width: min(100%, 800px);
+        --gas-color: #B2EBF2;
+      }
+      /* 其余CSS样式... */
+    </style>
+    <div class="oil-grid">
+      <div class="header-row">
+        <img class="sinopec-logo" src="https://www.jkrunning.site/images/sinopec-logo.png" alt="中国石化">
+        <div class="price-tips">{{ states('sensor.oilprice_zhejiang_tips') }}</div>
+      </div>
+      <div class="price-row">
+        <template is="dom-repeat" items="{{config.oil_prices}}">
+          <div class="price-item">
+            <span class="oil-icon">⛽</span>
+            <div class="oil-type">{{item.type}}</div>
+            <div class="oil-price">{{ states(item.entity) }}</div>
+          </div>
+        </template>
+      </div>
+      <div class="triple-row">
+        <div class="gas-item">
+          <div class="gas-icon-wrapper">
+            <span class="gas-icon">🔥</span>
+          </div>
+          <div class="gas-content">
+            <div class="gas-label">{{config.gas_balance.label}}</div>
+            <div class="gas-value">
+              {{ states(config.gas_balance.entity) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-column"></div>
+      </div>
+    </div>
+  </template>
+</dom-module>

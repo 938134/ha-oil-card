@@ -1,0 +1,10 @@
+{
+  "name": "HA Oil Card",
+  "domain": "custom_card",
+  "version": "1.0.0",
+  "category": "lovelace",
+  "dependencies": [],
+  "persistent_directory": "",
+  "documentation": "https://github.com/938134/ha-oil-card",
+  "zip_release": false
+}

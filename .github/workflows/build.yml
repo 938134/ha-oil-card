@@ -41,11 +41,12 @@ jobs:
 
       - name: Build project
         run: |
-          npm run build
-          if [ -d "dist" ]; then
-            echo "dist directory exists after build."
+          build_output=$(npm run build 2>&1)
+          echo "$build_output"
+          if [ -f "dist/ha-oil-card.js" ]; then
+            echo "ha-oil-card.js was generated successfully."
           else
-            echo "dist directory is missing after build."
+            echo "ha-oil-card.js was not generated."
             exit 1
           fi
 
@@ -65,9 +66,17 @@ jobs:
           fi
 
       - name: Upload build artifacts
+        id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: ha-oil-card-dist
           path: ha-oil-card-dist.zip
 
-          
+      - name: Check upload result
+        run: |
+          if [ ${{ steps.upload_artifact.outcome }} == 'success' ]; then
+            echo "Artifact uploaded successfully."
+          else
+            echo "Artifact upload failed."
+            exit 1
+          fi

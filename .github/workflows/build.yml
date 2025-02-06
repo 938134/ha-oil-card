@@ -30,8 +30,11 @@ jobs:
       - name: List dist directory
         run: ls -al dist
 
+      - name: Package dist directory into zip
+        run: zip -r ha-oil-card-dist.zip dist
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ha-oil-card-dist
-          path: dist/
+          path: ha-oil-card-dist.zip

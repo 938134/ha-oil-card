@@ -20,7 +20,13 @@ jobs:
         run: ls -al
 
       - name: Create dist directory
-        run: mkdir -p dist && chmod -R 777 dist
+        run: |
+          mkdir -p dist
+          if [ $? -ne 0 ]; then
+            echo "Failed to create dist directory. Error code: $?"
+            exit 1
+          fi
+          chmod -R 777 dist
 
       - name: Verify dist directory creation
         run: |
@@ -56,15 +62,6 @@ jobs:
       - name: Package dist directory into zip
         run: zip -r ha-oil-card-dist.zip dist
 
-      - name: Verify dist directory still exists
-        run: |
-          if [ -d "dist" ]; then
-            echo "dist directory still exists after packaging."
-          else
-            echo "dist directory is missing after packaging."
-            exit 1
-          fi
-
       - name: Upload build artifacts
         id: upload_artifact
         uses: actions/upload-artifact@v4
@@ -78,5 +75,14 @@ jobs:
             echo "Artifact uploaded successfully."
           else
             echo "Artifact upload failed."
+            exit 1
+          fi
+          
+      - name: Verify dist directory still exists
+        run: |
+          if [ -d "dist" ]; then
+            echo "dist directory still exists after packaging."
+          else
+            echo "dist directory is missing after packaging."
             exit 1
           fi

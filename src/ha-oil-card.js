@@ -1,47 +1,60 @@
-// src/ha-oil-card.js
-class HaOilCard extends HTMLElement {
+import { LitElement, html, css } from 'lit';
+
+class HaOilCard extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      config: { type: Object }
+    };
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        width: 85.6mm; /* 高仿身份证宽度 */
+        height: 54mm;  /* 高仿身份证高度 */
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-image: url(${this.config.background || 'default-background-url'});
+        background-size: cover;
+      }
+      .next-adjustment {
+        margin-bottom: 10px;
+      }
+      .oil-prices {
+        display: flex;
+        justify-content: space-around;
+      }
+    `;
+  }
+
+  render() {
+    const nextAdjustmentEntity = this.hass.states[this.config.next_adjustment_entity];
+    const oilPriceEntities = this.config.oil_price_entities.map(entity => this.hass.states[entity]);
+
+    return html`
+      <div class="next-adjustment">
+        Next Oil Price Adjustment: ${nextAdjustmentEntity ? nextAdjustmentEntity.state : 'N/A'}
+      </div>
+      <div class="oil-prices">
+        ${oilPriceEntities.map(price => html`
+          <div>${price ? price.state : 'N/A'}</div>
+        `)}
+      </div>
+    `;
+  }
+
   setConfig(config) {
-    if (!config.entity) {
-      throw new Error("Invalid config: 'entity' is required.");
+    if (!config.next_adjustment_entity || !config.oil_price_entities || config.oil_price_entities.length !== 4) {
+      throw new Error('Please provide next_adjustment_entity and exactly four oil_price_entities');
     }
     this.config = config;
   }
 
-  connectedCallback() {
-    this.innerHTML = `
-      <ha-card>
-        <div class="oil-grid">
-          <div class="header-row">
-            <img class="sinopec-logo" src="https://www.jkrunning.site/images/sinopec-logo.png" alt="中国石化">
-            <div class="price-tips">{{ states('sensor.oilprice_zhejiang_tips') }}</div>
-          </div>
-          <div class="price-row">
-            ${this.config.oil_prices.map(price => `
-              <div class="price-item">
-                <span class="oil-icon">⛽</span>
-                <div class="oil-type">${price.type}</div>
-                <div class="oil-price">{{ states('${price.entity}') }}</div>
-              </div>
-            `).join('')}
-          </div>
-          <div class="triple-row">
-            <div class="gas-item">
-              <div class="gas-icon-wrapper">
-                <span class="gas-icon">🔥</span>
-              </div>
-              <div class="gas-content">
-                <div class="gas-label">${this.config.gas_balance.label}</div>
-                <div class="gas-value">
-                  {{ states('${this.config.gas_balance.entity}') }}
-                </div>
-              </div>
-            </div>
-            <div class="empty-column"></div>
-          </div>
-        </div>
-      </ha-card>
-    `;
+  getCardSize() {
+    return 3;
   }
 }
 
-customElements.define("ha-oil-card", HaOilCard);
+customElements.define('ha-oil-card', HaOilCard);

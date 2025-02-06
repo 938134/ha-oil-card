@@ -13,6 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Print current directory
+        run: pwd
+
+      - name: List files in current directory
+        run: ls -al
+
       - name: Create dist directory
         run: mkdir -p dist && chmod -R 777 dist
 
@@ -24,18 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Print build command
+        run: echo "Running build command: npm run build"
+
       - name: Build project
         run: npm run build
 
-      - name: List dist directory
+      - name: List dist directory after build
         run: ls -al dist
 
       - name: Package dist directory into zip
         run: zip -r ha-oil-card-dist.zip dist
-
-      - name: Generate a unique release tag
-        id: generate_tag
-        run: |
-          timestamp=$(date +%Y%m%d%H%M%S)
-          tag_name="v$timestamp"
-          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT

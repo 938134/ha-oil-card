@@ -24,18 +24,6 @@ jobs:
             exit 1
           fi
           chmod -R 777 dist
-          
-      - name: List files in current directory
-        run: ls -al
-
-      - name: Verify dist directory creation
-        run: |
-          if [ -d "dist" ]; then
-            echo "dist directory created successfully."
-          else
-            echo "Failed to create dist directory."
-            exit 1
-          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -55,7 +43,9 @@ jobs:
             echo "ha-oil-card.js was not generated."
             exit 1
           fi
-
+      - name: List files in current directory
+        run: ls -al
+        
       - name: List dist directory after build
         run: ls -al dist
 

@@ -24,7 +24,7 @@ jobs:
 
       - name: Verify dist directory creation
         run: |
-          if [ -d "dist22" ]; then
+          if [ -d "dist" ]; then
             echo "dist directory created successfully."
           else
             echo "Failed to create dist directory."

@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Only
 
 on:
   push:
@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Print build command
+        run: echo "Running build command: npm run build"
+
       - name: Build project
         run: npm run build
 
@@ -56,3 +59,9 @@ jobs:
             echo "dist directory is missing after packaging."
             exit 1
           fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-oil-card-dist
+          path: ha-oil-card-dist.zip

@@ -15,10 +15,7 @@ jobs:
 
       - name: Print current directory
         run: pwd
-
-      - name: List files in current directory
-        run: ls -al
-
+        
       - name: Create dist directory
         run: |
           mkdir -p dist
@@ -27,6 +24,9 @@ jobs:
             exit 1
           fi
           chmod -R 777 dist
+          
+      - name: List files in current directory
+        run: ls -al
 
       - name: Verify dist directory creation
         run: |

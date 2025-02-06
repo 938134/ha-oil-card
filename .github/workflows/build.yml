@@ -39,8 +39,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Print build command
+        run: echo "Running build command: npm run build"
+
       - name: Build project
-        run: npm run build
+        run: |
+          npm run build
+          if [ -d "dist" ]; then
+            echo "dist directory exists after build."
+          else
+            echo "dist directory is missing after build."
+            exit 1
+          fi
 
       - name: List dist directory after build
         run: ls -al dist

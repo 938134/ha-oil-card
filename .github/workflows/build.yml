@@ -22,6 +22,15 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist && chmod -R 777 dist
 
+      - name: Verify dist directory creation
+        run: |
+          if [ -d "dist" ]; then
+            echo "dist directory created successfully."
+          else
+            echo "Failed to create dist directory."
+            exit 1
+          fi
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -38,3 +47,12 @@ jobs:
 
       - name: Package dist directory into zip
         run: zip -r ha-oil-card-dist.zip dist
+
+      - name: Verify dist directory still exists
+        run: |
+          if [ -d "dist" ]; then
+            echo "dist directory still exists after packaging."
+          else
+            echo "dist directory is missing after packaging."
+            exit 1
+          fi

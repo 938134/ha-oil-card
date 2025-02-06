@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,11 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Print working directory
-        run: pwd
-
-      - name: List files in working directory
-        run: ls -al
+      - name: Create dist directory
+        run: mkdir -p dist && chmod -R 777 dist
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

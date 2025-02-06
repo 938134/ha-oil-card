@@ -37,7 +37,8 @@ jobs:
         id: generate_tag
         run: |
           timestamp=$(date +%Y%m%d%H%M%S)
-          echo "::set-output name=tag_name::v$timestamp"
+          tag_name="v$timestamp"
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create_release

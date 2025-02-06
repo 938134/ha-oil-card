@@ -25,7 +25,7 @@ jobs:
         run: npm install
 
       - name: Print build command
-        run: echo "Running build command: $(npm run build --dry-run)"
+        run: echo "Running build command: npm run build"
 
       - name: Build project
         run: npm run build

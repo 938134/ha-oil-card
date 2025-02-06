@@ -13,9 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Print current directory
-        run: pwd
-        
       - name: Create dist directory
         run: |
           mkdir -p dist
@@ -43,36 +40,16 @@ jobs:
             echo "ha-oil-card.js was not generated."
             exit 1
           fi
-      - name: List files in current directory
-        run: ls -al
-        
-      - name: List dist directory after build
-        run: ls -al dist
 
       - name: Package dist directory into zip
-        run: zip -r ha-oil-card-dist.zip dist
+        run: zip -r ha-oil-card.zip dist
 
       - name: Upload build artifacts
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: ha-oil-card-dist
-          path: ha-oil-card-dist.zip
+          path: dist/ha-oil-card.zip
 
-      - name: Check upload result
-        run: |
-          if [ ${{ steps.upload_artifact.outcome }} == 'success' ]; then
-            echo "Artifact uploaded successfully."
-          else
-            echo "Artifact upload failed."
-            exit 1
-          fi
-          
-      - name: Verify dist directory still exists
-        run: |
-          if [ -d "dist" ]; then
-            echo "dist directory still exists after packaging."
-          else
-            echo "dist directory is missing after packaging."
-            exit 1
-          fi
+      - name: List dist directory after build
+        run: ls -al dist

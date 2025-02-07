@@ -52,10 +52,10 @@ jobs:
         run: |
           build_output=$(npm run build 2>&1)
           echo "$build_output"
-          if [ -f "dist/ha-oil-card.js" ]; then
-            echo "ha-oil-card.js was generated successfully in dist directory."
+          if [ -f "dist/oil-card.js" ]; then
+            echo "oil-card.js was generated successfully in dist directory."
           else
-            echo "ha-oil-card.js was not generated in dist directory."
+            echo "oil-card.js was not generated in dist directory."
             exit 1
           fi
 
@@ -63,23 +63,14 @@ jobs:
         run: ls -al dist
 
       - name: Package dist directory into zip
-        run: zip -r ha-oil-card-dist.zip dist
-
-      - name: Verify dist directory still exists
-        run: |
-          if [ -d "dist" ]; then
-            echo "dist directory still exists after packaging."
-          else
-            echo "dist directory is missing after packaging."
-            exit 1
-          fi
+        run: zip -r ha-oil-card.zip dist
 
       - name: Upload build artifacts
         id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ha-oil-card-dist
-          path: ha-oil-card-dist.zip
+          name: ha-oil-card
+          path: ha-oil-card.zip
 
       - name: Check upload result
         run: |

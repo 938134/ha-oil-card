@@ -1,0 +1,79 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main  # 触发分支（例如 main）
+    paths:
+      - 'src/**'  # 仅当 src 目录有变更时触发
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. 安装依赖
+      - name: Install dependencies
+        run: npm install
+
+      # 4. 构建项目
+      - name: Build project
+        run: npm run build
+
+      # 5. 自动提交 dist 目录到仓库（可选）
+      - name: Commit dist files
+        if: github.ref == 'refs/heads/main'  # 仅在 main 分支触发
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add dist
+          git commit -m "Auto-build: Update dist files" || echo "No changes to commit"
+          git push
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # 仅在打标签时触发（例如 v1.0.0）
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 创建 GitHub Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      # 3. 上传编译后的文件到 Release
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/oil-card.js
+          asset_name: oil-card.js
+          asset_content_type: application/javascript

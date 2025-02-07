@@ -108,4 +108,100 @@ class OilCard extends LitElement {
   }
 }
 
+// 定义卡片编辑器
+class OilCardEditor extends LitElement {
+  static get properties() {
+    return {
+      hass: {},
+      config: {},
+    };
+  }
+
+  static get styles() {
+    return css`
+      .form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form ha-entity-picker {
+        width: 100%;
+      }
+    `;
+  }
+
+  render() {
+    if (!this.hass) {
+      return html``;
+    }
+
+    const { adjustment_time, prices, price_increase } = this.config || {};
+
+    return html`
+      <div class="form">
+        <!-- 调整时间实体选择器 -->
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${adjustment_time}
+          .label="下次调整时间实体"
+          @value-changed=${(ev) => this._updateConfig('adjustment_time', ev.detail.value)}
+        ></ha-entity-picker>
+
+        <!-- 油品价格实体选择器 -->
+        ${[0, 1, 2, 3].map(
+          (index) => html`
+            <ha-entity-picker
+              .hass=${this.hass}
+              .value=${prices ? prices[index] : ''}
+              .label=${`油品${index + 1}价格实体`}
+              @value-changed=${(ev) => this._updatePrice(index, ev.detail.value)}
+            ></ha-entity-picker>
+          `
+        )}
+
+        <!-- 涨价信息实体选择器 -->
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${price_increase}
+          .label="涨价信息实体"
+          @value-changed=${(ev) => this._updateConfig('price_increase', ev.detail.value)}
+        ></ha-entity-picker>
+      </div>
+    `;
+  }
+
+  _updateConfig(key, value) {
+    const config = { ...this.config, [key]: value };
+    this.config = config;
+    this._fireConfigChanged();
+  }
+
+  _updatePrice(index, value) {
+    const prices = [...(this.config.prices || ['', '', '', ''])];
+    prices[index] = value;
+    const config = { ...this.config, prices };
+    this.config = config;
+    this._fireConfigChanged();
+  }
+
+  _fireConfigChanged() {
+    const event = new CustomEvent('config-changed', {
+      detail: { config: this.config },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
+}
+
+// 注册卡片和编辑器
 customElements.define('oil-card', OilCard);
+customElements.define('oil-card-editor', OilCardEditor);
+
+// 定义卡片配置
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: 'oil-card',
+  name: 'Oil Card',
+  description: 'A custom card for displaying oil prices and adjustment information.',
+});

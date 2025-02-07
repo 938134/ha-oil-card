@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main  # 触发分支（例如 main）
-    paths:
-      - 'src/**'  # 仅当 src 目录有变更时触发
   pull_request:
     branches:
       - main

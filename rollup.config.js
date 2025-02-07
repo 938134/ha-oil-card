@@ -1,12 +1,11 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
-    input: 'src/ha-oil-card.js',
-    output: {
-        file: 'dist/ha-oil-card.js',
-        format: 'es',
-    },
-    plugins: [
-        nodeResolve(),
-    ],
+  input: 'src/oil-card.js',
+  output: {
+    file: 'dist/oil-card.js',
+    format: 'es',
+  },
+  plugins: [resolve(), commonjs()],
 };

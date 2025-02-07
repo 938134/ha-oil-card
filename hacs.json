@@ -1,11 +1,7 @@
 {
-    "name": "ha-oil-card",
-    "description": "This is a Home Assistant integration for oil card management.",
-    "authors": ["Your Name"],
-    "domain": "ha_oil_card",
-    "homeassistant": "2023.1.0",
-    "hacs": {
-        "categories": ["integration"]
-    },
-    "zip_release": true
+  "name": "Oil Card",
+  "render_readme": true,
+  "filename": "dist/oil-card.js",
+  "domains": ["sensor"],
+  "homeassistant": "2021.12.0"
 }

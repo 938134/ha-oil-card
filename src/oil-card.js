@@ -8,7 +8,6 @@ class OilCard extends LitElement {
       config: {},
     };
   }
-
   
   static get styles() {
     return css`

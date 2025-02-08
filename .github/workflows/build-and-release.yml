@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    types: [created]  # 当创建新发布时触发
 
 jobs:
   build:
@@ -39,7 +41,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git add dist
           git commit -m "Auto-build: Update dist files" || echo "No changes to commit"
-          git push
+          git push origin main
 
   release:
     needs: build

@@ -3,8 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, hasConfigOrEntityChanged } from 'custom-card-helpers';
 import Luxon from 'luxon';
 
-@customElement('ha-oil-card')
-export class HaOilCard extends LitElement {
+let HaOilCard = class extends LitElement {
   @property() public hass!: HomeAssistant;
   @property() private _config!: any;
 
@@ -130,4 +129,7 @@ export class HaOilCard extends LitElement {
       }
     });
   }
-}
+};
+
+customElements.define('ha-oil-card', HaOilCard);
+export { HaOilCard };

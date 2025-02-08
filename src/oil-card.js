@@ -11,7 +11,7 @@ let HaOilCard = class extends LitElement {
     _adjustmentInfo = '';
 
     static async getConfigElement() {
-        return import('./ha-oil-card-editor').then((module) => module.OilCardConfigElement);
+        return import('./oil-card-editor').then((module) => module.OilCardConfigElement);
     }
 
     static getStubConfig() {

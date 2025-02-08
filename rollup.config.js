@@ -1,16 +1,17 @@
-import babel from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: 'src/oil-card.js',
   output: {
-    file: 'dist/oil-card.js',
+    dir: 'dist', // 使用 `dir` 而不是 `file`
     format: 'esm',
     sourcemap: true,
   },
   plugins: [
-    babel({
-      babelHelpers: 'bundled',
-      plugins: ['@babel/plugin-proposal-decorators']
-    }),
+    nodeResolve(),
+    commonjs(),
+    typescript(),
   ],
 };

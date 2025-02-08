@@ -13,33 +13,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. 设置 Node.js 环境
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '16'
 
-      # 3. 安装依赖
       - name: Install dependencies
         run: npm install
 
-      # 4. 构建项目
       - name: Build project
         run: npm run build
 
-      # 5. 自动提交 dist 目录到仓库
-      - name: Commit dist files
-        if: github.ref == 'refs/heads/main'  # 仅在 main 分支触发
+      - name: Pull latest changes from remote
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add dist
-          git commit -m "Auto-build: Update dist files" || echo "No changes to commit"
-          git push
+          git pull origin main
+
+      - name: Push dist files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git add dist/
+          git commit -m "Auto-build: Update dist files"
+          git push origin main
 
   release:
     needs: build

@@ -1,11 +1,17 @@
-import resolve from '@rollup/plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: 'src/oil-card.js',
   output: {
-    file: 'dist/oil-card.js',
-    format: 'es',
+    dir: 'dist', // 使用 `dir` 而不是 `file`
+    format: 'esm',
+    sourcemap: true,
   },
-  plugins: [resolve(), commonjs()],
+  plugins: [
+    nodeResolve(),
+    commonjs(),
+    typescript(),
+  ],
 };

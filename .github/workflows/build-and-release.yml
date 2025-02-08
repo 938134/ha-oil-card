@@ -31,7 +31,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. 自动提交 dist 目录到仓库（可选）
+      # 5. 自动提交 dist 目录到仓库
       - name: Commit dist files
         if: github.ref == 'refs/heads/main'  # 仅在 main 分支触发
         run: |

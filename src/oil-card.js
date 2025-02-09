@@ -1,133 +1,153 @@
 import { LitElement, html, css } from 'lit';
-import { HomeAssistant, hasConfigOrEntityChanged } from 'custom-card-helpers';
-import Luxon from 'luxon';
+import { property } from 'lit/decorators.js';
 
-let HaOilCard = class extends LitElement {
-    // 响应式属性
-    hass = {};
-    _config = {};
-    _nextAdjustDate = null;
-    _oilPrices = {};
-    _adjustmentInfo = '';
+class OilPriceCard extends LitElement {
+  static get styles() {
+    return css`
+      ha-card {
+        padding: 16px;
+        background: var(--card-background-color);
+        border-radius: var(--ha-card-border-radius);
+        box-shadow: var(--ha-card-box-shadow);
+      }
+      .header {
+        font-size: 1.2em;
+        color: var(--primary-text-color);
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .prices {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .price-item {
+        text-align: center;
+        padding: 8px;
+        background: var(--secondary-background-color);
+        border-radius: 4px;
+      }
+      .adjustment-info {
+        font-size: 0.9em;
+        color: var(--secondary-text-color);
+        text-align: center;
+      }
+    `;
+  }
 
-    static async getConfigElement() {
-        return import('./oil-card-editor').then((module) => module.OilCardConfigElement);
+  @property({ type: Object }) hass;
+  @property({ type: String }) adjustmentEntity;
+  @property({ type: Object }) priceEntities;
+  @property({ type: String }) infoEntity;
+
+  static getConfigElement() {
+    return document.createElement('oil-price-card-editor');
+  }
+
+  setConfig(config) {
+    this.adjustmentEntity = config.adjustment_entity;
+    this.priceEntities = config.price_entities || {};
+    this.infoEntity = config.info_entity;
+  }
+
+  render() {
+    if (!this.hass) return html``;
+
+    // 获取调价窗口时间
+    const adjustmentTime = this._getEntityState(this.adjustmentEntity);
+    // 获取调价信息
+    const adjustmentInfo = this._getEntityState(this.infoEntity);
+    // 获取油品价格
+    const prices = {};
+    for (const [type, entity] of Object.entries(this.priceEntities)) {
+      prices[type] = this._getEntityState(entity);
     }
 
-    static getStubConfig() {
-        return {
-            next_adjust_date: 'sensor.next_oil_adjust_date',
-            oil_prices: [
-                { entity: 'sensor.gasoline92', name: '92号汽油' },
-                { entity: 'sensor.gasoline95', name: '95号汽油' },
-                { entity: 'sensor.diesel', name: '柴油' },
-                { entity: 'sensor.lpg', name: '液化石油气' },
-            ],
-            adjustment_info: 'sensor.adjustment_info',
-        };
-    }
+    return html`
+      <ha-card>
+        <div class="header">下次调价窗口：${adjustmentTime || 'N/A'}</div>
+        <div class="prices">
+          ${Object.entries(prices).map(([type, price]) => html`
+            <div class="price-item">
+              <div>${type}</div>
+              <div>${price ? `${price}元` : 'N/A'}</div>
+            </div>
+          `)}
+        </div>
+        <div class="adjustment-info">${adjustmentInfo || '暂无调价信息'}</div>
+      </ha-card>
+    `;
+  }
 
-    setConfig(config) {
-        if (!config) {
-            throw new Error('Invalid configuration');
-        }
-        this._config = config;
+  _getEntityState(entityId) {
+    if (!entityId) return null;
+    const stateObj = this.hass.states[entityId];
+    return stateObj ? stateObj.state : null;
+  }
+}
 
-        // 初始化数据
-        this._nextAdjustDate = this._getDateFromState(config.next_adjust_date);
-        this._updateOilPrices(config.oil_prices);
-        this._adjustmentInfo = this._getStringFromState(config.adjustment_info);
-    }
+// 配置编辑器（用于可视化界面）
+class OilPriceCardEditor extends LitElement {
+  static get properties() {
+    return {
+      hass: Object,
+      config: Object,
+    };
+  }
 
-    shouldUpdate(changedProps) {
-        return hasConfigOrEntityChanged(this, changedProps);
-    }
+  setConfig(config) {
+    this.config = config || {};
+  }
 
-    render() {
-        return html`
-            <ha-card>
-                <div class="next-adjust-date">
-                    <span>下次油价调整窗口时间：</span>
-                    <span>${this._nextAdjustDate?.toLocaleString()}</span>
-                </div>
-                <div class="oil-prices">
-                    ${this._config.oil_prices.map((item) => html`
-                        <div class="fuel-type">
-                            <span>${item.name}：</span>
-                            <span class="price">${this._oilPrices[item.entity]?.toFixed(2)} 元/升</span>
-                        </div>
-                    `)}
-                </div>
-                <div class="adjustment-info">
-                    <span>${this._adjustmentInfo}</span>
-                </div>
-            </ha-card>
-        `;
-    }
+  _valueChanged(ev) {
+    const target = ev.target;
+    const value = target.configValue === 'object' ? 
+      { ...this.config[target.configKey], [target.key]: ev.detail.value } :
+      ev.detail.value;
+    
+    this.dispatchEvent(new CustomEvent('config-changed', {
+      detail: { config: { ...this.config, [target.configKey]: value } }
+    }));
+  }
 
-    static get styles() {
-        return css`
-            ha-card {
-                text-align: center;
-                padding: 16px;
-            }
+  render() {
+    if (!this.hass) return html``;
 
-            .next-adjust-date {
-                margin-bottom: 16px;
-                font-weight: bold;
-                color: #333;
-            }
+    return html`
+      <div class="card-config">
+        <ha-entity-picker
+          .label="选择调价时间实体"
+          .hass=${this.hass}
+          .value=${this.config.adjustment_entity}
+          .configValue=${'adjustment_entity'}
+          @value-changed=${this._valueChanged}
+        ></ha-entity-picker>
 
-            .oil-prices {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
-                margin-bottom: 16px;
-            }
+        <ha-formfield label="油品单价实体">
+          ${Object.entries(this.config.price_entities || {}).map(([type, entity]) => html`
+            <ha-entity-picker
+              .label=${`${type}实体`}
+              .hass=${this.hass}
+              .value=${entity}
+              .configKey=${type}
+              .configValue=${'price_entities'}
+              @value-changed=${this._valueChanged}
+            ></ha-entity-picker>
+          `)}
+        </ha-formfield>
 
-            .fuel-type {
-                background-color: #f5f5f5;
-                padding: 8px;
-                border-radius: 4px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
+        <ha-entity-picker
+          .label="选择调价信息实体"
+          .hass=${this.hass}
+          .value=${this.config.info_entity}
+          .configValue=${'info_entity'}
+          @value-changed=${this._valueChanged}
+        ></ha-entity-picker>
+      </div>
+    `;
+  }
+}
 
-            .price {
-                color: #007bff;
-                font-weight: bold;
-                font-size: 1.2em;
-            }
-
-            .adjustment-info {
-                color: #666;
-                font-size: 0.9em;
-            }
-        `;
-    }
-
-    _getDateFromState(entity) {
-        const state = this.hass.states[entity];
-        if (state && state.state !== 'unknown') {
-            return Luxon.DateTime.fromISO(state.state);
-        }
-        return null;
-    }
-
-    _getStringFromState(entity) {
-        const state = this.hass.states[entity];
-        return state ? state.state : '';
-    }
-
-    _updateOilPrices(oilPrices) {
-        this._oilPrices = {};
-        oilPrices.forEach((item) => {
-            const state = this.hass.states[item.entity];
-            if (state && !isNaN(parseFloat(state.state))) {
-                this._oilPrices[item.entity] = parseFloat(state.state);
-            }
-        });
-    }
-};
-
-customElements.define('ha-oil-card', HaOilCard);
-export { HaOilCard };
+customElements.define('oil-price-card', OilPriceCard);
+customElements.define('oil-price-card-editor', OilPriceCardEditor);

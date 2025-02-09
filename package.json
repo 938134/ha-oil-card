@@ -2,11 +2,10 @@
   "name": "ha-oil-card",
   "version": "1.0.0",
   "scripts": {
-    "build": "rollup -c"
+    "build": "mkdir -p dist && cp src/oil-card.js dist/oil-card.js",
+    "release": "standard-version"
   },
   "devDependencies": {
-    "rollup": "^2.60.0",
-    "@rollup/plugin-node-resolve": "^13.0.6",
-    "@rollup/plugin-commonjs": "^21.0.1"
+    "standard-version": "^9.5.0"
   }
 }

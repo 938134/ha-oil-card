@@ -1,0 +1,39 @@
+/* 卡片整体样式 */
+.oil-price-card {
+  background-color: #1a237e;
+  color: #ffffff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* 调价窗口时间样式 */
+.adjustment-period {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0.5rem;
+  background-color: #ffd700;
+  border-radius: 5px;
+}
+
+/* 油品价格表格样式 */
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.price-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #ffffff;
+}
+
+.price-row:nth-child(even) {
+  background-color: rgba(255,255,255,0.1);
+}
+
+/* 调价信息样式 */
+.adjustment-info {
+  font-size: 14px;
+  margin-top: 1rem;
+}
